@@ -56,12 +56,23 @@ class App extends React.Component {
     const { products } = this.state;
     const index = products.indexOf(product);
 
-    products[index].qty += 1;
+    // products[index].qty += 1;
 
-    this.setState({
-      products
-    })
-  }
+    // this.setState({
+    //   products
+    // })
+    const docRef = this.db.collection("products").doc(products[index].id);
+
+    docRef
+      .update({ qty: products[index].qty + 1 })
+      .then(() => {
+        console.log("Document updated sucessfully");
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
+  };
   handleDecreaseQuantity = (product) => {
     console.log('Heyy please inc the qty of ', product);
     const { products } = this.state;
@@ -71,21 +82,42 @@ class App extends React.Component {
       return;
     }
 
-    products[index].qty -= 1;
+    // products[index].qty -= 1;
 
-    this.setState({
-      products
-    })
+    // this.setState({
+    //   products
+    // })
+    const docRef = this.db.collection("products").doc(products[index].id);
+
+    docRef
+      .update({ qty: products[index].qty - 1 })
+      .then(() => {
+        console.log("Document updated sucessfully");
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
   handleDeleteProduct = (id) => {
     const { products } = this.state;
 
-    const items = products.filter((item) => item.id !== id); // [{}]
+    const docRef = this.db.collection("products").doc(id);
 
-    this.setState({
-      products: items
-    })
-  }
+    docRef
+      .delete()
+      .then(() => {
+        console.log("Deleted sucessfully");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // const items = products.filter((item) => item.id !== id); // [{}]
+
+    // this.setState({
+    //   products: items
+    // })
+
+  };
 
   getCartCount = () => {
     const { products } = this.state;
@@ -132,7 +164,7 @@ class App extends React.Component {
         console.log(error);
       });
   };
-  
+
   render () {
     const { products, loading } = this.state;
     return (
