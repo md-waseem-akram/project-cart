@@ -13,21 +13,44 @@ class App extends React.Component {
       products: [],
       loading: true
     };
+    this.db = firebase.firestore();
   }
+  // componentDidMount() {
+  //   firebase
+  //     .firestore()
+  //     .collection("products")
+  //     .get()
+  //     .then(snapshot => {
+  //       const products = snapshot.docs.map(doc => {
+  //         const data = doc.data();
+  //         data["id"] = doc.id;
+  //         return data;
+  //       });
+  //       this.setState({ products: products, loading: false });
+  //     });
+  // }
+
+
   componentDidMount() {
-    firebase
-      .firestore()
+    this.db
       .collection("products")
-      .get()
-      .then(snapshot => {
+      .onSnapshot((snapshot=>{
+        console.log(snapshot);
+
+        snapshot.docs.map((doc)=>{
+          console.log(doc.data())
+          return '';
+        });
+
         const products = snapshot.docs.map(doc => {
           const data = doc.data();
           data["id"] = doc.id;
           return data;
         });
         this.setState({ products: products, loading: false });
-      });
-  }
+      }));
+    }      
+      
   handleIncreaseQuantity = (product) => {
     console.log('Heyy please inc the qty of ', product);
     const { products } = this.state;
@@ -90,11 +113,34 @@ class App extends React.Component {
 
     return cartTotal;
   }
+
+  addProduct = () => {
+    this.db
+      .collection("products")
+      .add({
+        img: "",
+        price: 900,
+        qty: 3,
+        title: "Washing Machine"
+      })
+      .then(docRef => {
+        docRef.get().then(snapshot => {
+          console.log("Product has been added", snapshot.data());
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+  
   render () {
     const { products, loading } = this.state;
     return (
       <div className="App">
         <Navbar count={this.getCartCount()} />
+        <button onClick={this.addProduct} style={{ padding: 20, fontSize: 20 }}>
+          Add a Product
+        </button>
         <Cart
           products={products}
           onIncreaseQuantity={this.handleIncreaseQuantity}
